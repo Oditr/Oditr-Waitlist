@@ -570,7 +570,16 @@ export default function Landing() {
 
   const scrollToWaitlist = () => {
     const el = document.getElementById("waitlist");
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (!el) return;
+    if (window.__lenis) {
+      window.__lenis.scrollTo(el, {
+        offset: -40,
+        duration: 1.6,
+        easing: (t) => 1 - Math.pow(1 - t, 4),
+      });
+    } else {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   };
 
   return (
