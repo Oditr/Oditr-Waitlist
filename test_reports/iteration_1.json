@@ -1,0 +1,44 @@
+{
+  "summary": "Full e2e testing of Øditr waitlist landing page. All 6 backend pytest tests pass (root, count, valid create, duplicate, invalid 422, lowercase normalization). All frontend testIds render, hero CTA scrolls to waitlist form, valid submit shows success with position, hero live count increments (4 -> 5). Only one issue found: invalid-email error message does not surface because HTML5 native email validation blocks form submission before the JS handler runs.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "WaitlistSection",
+        "issue": "Custom error message (data-testid='waitlist-error-msg') never appears for invalid emails like 'not-an-email' because the email input is type='email' and the browser's native validation blocks form submission before the JS onSubmit handler runs. The custom regex check at Landing.jsx:404 is unreachable for syntactically invalid emails. Recommendation: change input type to 'text' (and keep autoComplete='email') OR add noValidate to the form, so the JS validation + waitlist-error-msg surfaces consistently.",
+        "selector": "[data-testid='waitlist-email-input']",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_waitlist.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Fix invalid-email error display: add `noValidate` to <form> (or change input type='text') in /app/frontend/src/pages/Landing.jsx WaitlistSection so the JS validation surfaces waitlist-error-msg instead of relying on browser-native validation popup."
+  ],
+  "critical_code_review_comments": [
+    "Position computation in POST /api/waitlist for existing users does a full async iteration over the sorted collection (O(N)). For small waitlists this is fine but should switch to count_documents({created_at: {$lte: existing.created_at}}) at scale.",
+    "created_at is stored as ISO string (server.py:86) but model expects datetime; works via fromisoformat on read but inconsistent — consider storing as native BSON Date.",
+    "EmailStr already validates email at Pydantic layer; the duplicate JS regex in Landing.jsx is fine, but the form is submitted via onSubmit on an input[type=email], so browser-native popup wins for malformed emails — see ui_bug above."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_waitlist.py (new)"
+  ],
+  "success_rate": {
+    "backend": "100% (6/6)",
+    "frontend": "~94% (15/16 testIds & flows verified; invalid-email error msg blocked by native validation)"
+  },
+  "test_credentials": "N/A — no auth in this app",
+  "seed_data_creation": "Tests created TEST_-prefixed waitlist entries via API; not cleaned up (no DELETE endpoint exists). Hero count went from 4 to 5 during UI run.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend is solid. After main agent fixes the invalid-email UX (add noValidate or change input type), retest only the WaitlistSection invalid-email flow: fill 'not-an-email' and confirm [data-testid='waitlist-error-msg'] becomes visible with 'Please enter a valid email.' text. Backend tests at /app/backend/tests/test_waitlist.py can be reused as regression.",
+  "rca of the issue": "Form has <input type='email' required-like via regex check in JS>. When user submits 'not-an-email', Chromium's constraint validation fires first, shows native '@' tooltip, and returns false from form submission, preventing the React onSubmit handler from executing. Therefore setStatus('error') never runs and the [data-testid='waitlist-error-msg'] element is never rendered. Mitigation: add `noValidate` attribute to the <motion.form> element OR switch input type to 'text' and rely solely on the existing JS regex validation."
+}
