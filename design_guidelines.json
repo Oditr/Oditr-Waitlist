@@ -1,0 +1,109 @@
+{
+  "theme": "light",
+  "archetype": "Swiss & High-Contrast",
+  "identity": "E1 The Anti-AI Designer",
+  "brand": {
+    "name": "Øditr",
+    "pronunciation": "Auditor",
+    "symbol": "Ø"
+  },
+  "colors": {
+    "background": "#FFFFFF",
+    "primary_text": "#0A0A0A",
+    "secondary_text": "#666666",
+    "borders": "#EAEAEA",
+    "accent": "#111111",
+    "forbidden": ["gradients", "neon", "glassmorphism", "unnecessary effects", "#7351B7", "#1B93A4"]
+  },
+  "typography": {
+    "primary_font": "Geist",
+    "mono_font": "Geist Mono",
+    "hierarchy": {
+      "hero_wordmark": "text-[15vw] md:text-[18vw] leading-none tracking-tighter font-medium text-[#0A0A0A]",
+      "h2": "text-4xl sm:text-5xl lg:text-7xl tracking-tight leading-tight text-[#0A0A0A]",
+      "h3": "text-2xl sm:text-3xl lg:text-4xl tracking-tight text-[#0A0A0A]",
+      "body": "text-lg md:text-xl text-[#666666] leading-relaxed",
+      "mono_small": "font-mono text-xs md:text-sm tracking-[0.2em] uppercase text-[#666666]"
+    }
+  },
+  "layout_and_spacing": {
+    "container_padding": "px-6 md:px-12 lg:px-24",
+    "section_spacing": "py-24 md:py-40",
+    "grid_system": "grid-cols-1 md:grid-cols-12 gap-8 md:gap-12"
+  },
+  "components": {
+    "navigation": {
+      "type": "floating_minimal",
+      "design": "fixed top-6 left-1/2 -translate-x-1/2 bg-white border border-[#EAEAEA] rounded-full px-8 py-4 flex items-center gap-8 z-50 shadow-[0_4px_24px_rgba(0,0,0,0.04)]",
+      "items": ["Product", "Vision", "Roadmap", "Docs", "Join Waitlist"]
+    },
+    "buttons": {
+      "primary": "bg-[#0A0A0A] text-white px-8 py-4 rounded-full text-sm font-medium hover:bg-[#111111] transition-colors",
+      "secondary": "bg-transparent text-[#0A0A0A] border border-[#EAEAEA] px-8 py-4 rounded-full text-sm font-medium hover:bg-[#F5F5F5] transition-colors"
+    },
+    "inputs": {
+      "waitlist_email": "w-full bg-transparent border-b border-[#EAEAEA] focus:border-[#0A0A0A] py-4 md:py-6 text-xl md:text-3xl outline-none placeholder:text-[#EAEAEA] transition-colors text-center md:text-left"
+    }
+  },
+  "sections_strategy": {
+    "hero": {
+      "layout": "min-h-screen flex flex-col items-center justify-center relative overflow-hidden",
+      "elements": [
+        "Massive centered 'Øditr' wordmark",
+        "Positioning statement: 'Performance Intelligence for Modern Websites.'",
+        "Primary & Secondary CTAs",
+        "Background: Absolute positioned div with low-opacity (opacity-5) tech keywords floating."
+      ]
+    },
+    "problem_statement": {
+      "layout": "Massive typography block, generous negative space",
+      "content": "Most tools show diagnostics. Few explain what matters most."
+    },
+    "what_it_is_flow": {
+      "layout": "Horizontal step flow or massive flex text. Audit → Prioritize → Understand → Fix → Monitor",
+      "design": "Use Geist Mono for arrows, varying text opacity to indicate flow."
+    },
+    "product_vision": {
+      "layout": "Minimalist grid or structured list",
+      "content": "Evolving into Performance Intelligence, Monitoring, Prioritization, Recommendations, Continuous Optimization"
+    },
+    "future_capabilities": {
+      "layout": "Strict grid-cols-1 md:grid-cols-2 lg:grid-cols-3 with hairline borders (border-collapse look)",
+      "items": [
+        "Intelligent Prioritization Engine",
+        "Performance Health Score",
+        "Real User Monitoring",
+        "Regression Detection",
+        "AI Performance Copilot",
+        "Framework-Aware Recommendations"
+      ]
+    },
+    "waitlist_footer": {
+      "layout": "Minimalist form, massive email input",
+      "elements": [
+        "Email Input",
+        "Join Waitlist Button",
+        "Live Counter: 'X developers on the waitlist' (Real DB count integration required)"
+      ]
+    }
+  },
+  "motion_and_interactions": {
+    "scrolling": "Lenis smooth scroll is MANDATORY for premium momentum feel.",
+    "fades": "framer-motion for subtle opacity/y-axis reveals on scroll (initial={opacity:0, y:20} whileInView={opacity:1, y:0}).",
+    "background_atmosphere": "Use framer-motion to create extremely slow, continuous drifting of the tech keywords (LCP, CLS, INP, etc.) in the hero background. They must be almost invisible (opacity-5)."
+  },
+  "accessibility_and_testing": {
+    "contrast": "Ensure primary text meets APCA standards against #FFFFFF.",
+    "testing": "All interactive elements must include data-testid (e.g., 'join-waitlist-btn', 'email-input')."
+  },
+  "instructions_to_main_agent": [
+    "Install and configure Lenis for smooth scrolling.",
+    "Install framer-motion and lucide-react.",
+    "Ensure the 'Ø' character is correctly used in all brand references.",
+    "Construct the Waitlist backend using MongoDB without email confirmation, tracking live developer count.",
+    "Use Geist font (next/font/local or next/font/google depending on framework, or standard generic if pure React). If using pure React, import Geist from a reliable CDN or use Inter/Satoshi if Geist is unavailable.",
+    "Do NOT use glassmorphism, stick to solid colors with clear borders.",
+    "Do NOT use Shadcn Card components; build raw div layouts to maintain strict minimalism and editorial grid borders.",
+    "The waitlist form should have a clean UI: large text, minimal borders, and show the live count dynamically."
+  ]
+}
