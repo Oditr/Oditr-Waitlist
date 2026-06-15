@@ -31,7 +31,16 @@ body {
   color: #0a0a0a;
   font-family: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-feature-settings: "ss01", "cv11";
-  overscroll-behavior: none;
+}
+
+/* Allow native horizontal panning when the user has zoomed in */
+html.is-zoomed,
+html.is-zoomed body {
+  overflow: auto !important;
+  overscroll-behavior: auto !important;
+}
+html.is-zoomed .lenis {
+  overflow: auto !important;
 }
 
 body {
@@ -169,4 +178,64 @@ html.lenis body {
 /* Tighten letter-spacing for huge type */
 .tracking-hero {
   letter-spacing: -0.07em;
+}
+
+/* ------------------------------------------------------------- */
+/*  Custom cursor                                                */
+/* ------------------------------------------------------------- */
+.custom-cursor-dot,
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  will-change: transform;
+  mix-blend-mode: difference;
+}
+
+.custom-cursor-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #ffffff;
+  transition: opacity 0.2s ease;
+}
+
+.custom-cursor-ring {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  border: 1px solid #ffffff;
+  transition: width 0.25s cubic-bezier(0.65, 0, 0.35, 1),
+    height 0.25s cubic-bezier(0.65, 0, 0.35, 1),
+    border-color 0.25s ease, opacity 0.2s ease,
+    background-color 0.25s ease;
+}
+
+.custom-cursor-ring.is-hovering {
+  width: 56px;
+  height: 56px;
+  margin-left: -10px;
+  margin-top: -10px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: #ffffff;
+}
+
+@media (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor body,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+/* Hide custom cursor while zoomed (native cursor is more accurate) */
+html.is-zoomed .custom-cursor-dot,
+html.is-zoomed .custom-cursor-ring {
+  display: none;
+}
+html.is-zoomed.has-custom-cursor,
+html.is-zoomed.has-custom-cursor * {
+  cursor: auto !important;
 }

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import axios from "axios";
-import { ArrowUpRight, Check, ArrowRight } from "lucide-react";
+import { ArrowUpRight, Check, ArrowRight, Instagram, Twitter, Linkedin } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -32,6 +32,7 @@ const VISION_PILLARS = [
   { label: "Prioritization", desc: "Know what to fix first. Always." },
   { label: "Recommendations", desc: "Framework-aware, codebase-aware." },
   { label: "Continuous Optimization", desc: "Improvement as a default state." },
+  { label: "Developer Experience", desc: "Quiet by default. Loud when it matters." },
 ];
 
 const CAPABILITIES = [
@@ -68,35 +69,86 @@ const CAPABILITIES = [
 ];
 
 function FloatingNav({ onJoinClick }) {
+  const [open, setOpen] = useState(false);
+  let closeTimeout = useRef(null);
+
+  const handleEnter = () => {
+    if (closeTimeout.current) clearTimeout(closeTimeout.current);
+    setOpen(true);
+  };
+  const handleLeave = () => {
+    closeTimeout.current = setTimeout(() => setOpen(false), 120);
+  };
+
   return (
     <motion.nav
       data-testid="floating-nav"
       initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1], delay: 0.2 }}
-      className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 sm:gap-2 bg-white border border-[#EAEAEA] rounded-full pl-5 pr-1.5 py-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]"
+      className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center bg-white border border-[#EAEAEA] rounded-full p-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]"
     >
-      <a href="#top" className="flex items-center gap-2 pr-3 sm:pr-5 border-r border-[#EAEAEA]" data-testid="nav-logo">
-        <span className="text-xl font-medium tracking-tight">Ø</span>
-        <span className="hidden sm:inline text-sm font-medium tracking-tight">Øditr</span>
-      </a>
-      <ul className="hidden md:flex items-center gap-1">
-        {NAV_ITEMS.map((item) => (
-          <li key={item.label}>
-            <a
-              href={item.href}
-              data-testid={`nav-link-${item.label.toLowerCase()}`}
-              className="px-3 py-2 text-sm text-[#666666] hover:text-[#0A0A0A] transition-colors"
-            >
-              {item.label}
-            </a>
-          </li>
-        ))}
-      </ul>
+      {/* Hover zone: logo + drawer items */}
+      <div
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
+        className="flex items-center"
+      >
+        <a
+          href="#top"
+          data-testid="nav-logo"
+          aria-label="Øditr"
+          className="flex items-center justify-center w-10 h-10 text-2xl font-medium leading-none"
+        >
+          Ø
+        </a>
+
+        <motion.div
+          initial={false}
+          animate={{
+            width: open ? "auto" : 0,
+            opacity: open ? 1 : 0,
+            marginLeft: open ? 8 : 0,
+            marginRight: open ? 8 : 0,
+          }}
+          transition={{ duration: 0.45, ease: [0.65, 0, 0.35, 1] }}
+          style={{ overflow: "hidden" }}
+          className="flex items-center"
+          data-testid="nav-drawer"
+        >
+          <span className="block h-5 w-px bg-[#EAEAEA] mr-2 shrink-0" />
+          <ul className="flex items-center gap-1 shrink-0 pr-2">
+            {NAV_ITEMS.map((item, i) => (
+              <motion.li
+                key={item.label}
+                initial={false}
+                animate={{
+                  x: open ? 0 : -8,
+                  opacity: open ? 1 : 0,
+                }}
+                transition={{
+                  duration: 0.35,
+                  delay: open ? 0.08 + i * 0.04 : 0,
+                  ease: [0.65, 0, 0.35, 1],
+                }}
+              >
+                <a
+                  href={item.href}
+                  data-testid={`nav-link-${item.label.toLowerCase()}`}
+                  className="px-3 py-2 text-sm text-[#666666] hover:text-[#0A0A0A] transition-colors whitespace-nowrap"
+                >
+                  {item.label}
+                </a>
+              </motion.li>
+            ))}
+          </ul>
+        </motion.div>
+      </div>
+
       <button
         onClick={onJoinClick}
         data-testid="nav-join-waitlist-btn"
-        className="ml-1 sm:ml-2 bg-[#0A0A0A] text-white px-4 sm:px-5 py-2.5 rounded-full text-sm font-medium hover:bg-[#222222] transition-colors flex items-center gap-1.5"
+        className="bg-[#0A0A0A] text-white px-4 sm:px-5 py-2.5 rounded-full text-sm font-medium hover:bg-[#222222] transition-colors flex items-center gap-1.5 whitespace-nowrap"
       >
         Join Waitlist
         <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2} />
@@ -286,7 +338,7 @@ function FlowSection() {
                   {step}
                 </motion.span>
                 {i < FLOW_STEPS.length - 1 && (
-                  <span className="font-mono text-2xl md:text-4xl text-[#EAEAEA]">→</span>
+                  <span className="font-mono text-2xl md:text-4xl text-[#0A0A0A]">→</span>
                 )}
               </div>
             ))}
@@ -521,6 +573,49 @@ function WaitlistSection({ count, onSubmitSuccess }) {
 }
 
 function Footer() {
+  const socials = [
+    {
+      name: "Instagram",
+      href: "",
+      icon: <Instagram className="w-4 h-4" strokeWidth={1.5} />,
+    },
+    {
+      name: "Twitter",
+      href: "",
+      icon: <Twitter className="w-4 h-4" strokeWidth={1.5} />,
+    },
+    {
+      name: "Reddit",
+      href: "",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="13" r="9" />
+          <circle cx="9" cy="13" r="0.7" fill="currentColor" />
+          <circle cx="15" cy="13" r="0.7" fill="currentColor" />
+          <path d="M9 16c.9.7 2 1 3 1s2.1-.3 3-1" />
+          <path d="M18 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+          <path d="M15 5l3 1.5" />
+        </svg>
+      ),
+    },
+    {
+      name: "LinkedIn",
+      href: "",
+      icon: <Linkedin className="w-4 h-4" strokeWidth={1.5} />,
+    },
+    {
+      name: "Product Hunt",
+      href: "",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M10 7v10" />
+          <path d="M10 7h3.5a2.5 2.5 0 0 1 0 5H10" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <footer className="px-6 md:px-12 lg:px-24 py-16 border-t border-[#EAEAEA]">
       <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10">
@@ -544,6 +639,29 @@ function Footer() {
           </div>
         </div>
       </div>
+
+      <div className="mt-14 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3">
+          <span className="font-mono text-xs tracking-[0.2em] uppercase text-[#666666]">Follow</span>
+          <ul className="flex items-center gap-2 flex-wrap" data-testid="footer-socials">
+            {socials.map((s) => (
+              <li key={s.name}>
+                <a
+                  href={s.href || "#"}
+                  aria-label={s.name}
+                  data-testid={`social-${s.name.toLowerCase().replace(" ", "-")}`}
+                  target={s.href ? "_blank" : undefined}
+                  rel={s.href ? "noopener noreferrer" : undefined}
+                  className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[#EAEAEA] text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white transition-colors"
+                >
+                  {s.icon}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
       <div className="mt-16 flex items-center justify-between text-xs font-mono tracking-[0.2em] uppercase text-[#666666]">
         <span>© {new Date().getFullYear()} Øditr Labs</span>
         <span>v 0.1 · Pre-launch</span>
