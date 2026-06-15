@@ -119,15 +119,6 @@ function FloatingNav({ onJoinClick }) {
           {/* direction:ltr on inner so children read left-to-right while the
               outer width animates from the right edge inward */}
           <div className="flex items-center" style={{ direction: "ltr" }}>
-            <motion.span
-              initial={false}
-              animate={{ x: open ? 0 : -8, opacity: open ? 1 : 0 }}
-              transition={{ duration: 0.4, delay: open ? 0.05 : 0, ease: [0.65, 0, 0.35, 1] }}
-              className="text-sm font-medium tracking-tight whitespace-nowrap"
-              data-testid="nav-wordmark"
-            >
-              Øditr
-            </motion.span>
             <span className="block h-5 w-px bg-[#EAEAEA] mx-3 shrink-0" />
             <ul className="flex items-center gap-1 shrink-0 pr-2">
               {NAV_ITEMS.map((item, i) => (
@@ -140,7 +131,7 @@ function FloatingNav({ onJoinClick }) {
                   }}
                   transition={{
                     duration: 0.35,
-                    delay: open ? 0.1 + i * 0.05 : 0,
+                    delay: open ? 0.08 + i * 0.05 : 0,
                     ease: [0.65, 0, 0.35, 1],
                   }}
                 >
