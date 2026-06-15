@@ -70,7 +70,7 @@ const CAPABILITIES = [
 
 function FloatingNav({ onJoinClick }) {
   const [open, setOpen] = useState(false);
-  let closeTimeout = useRef(null);
+  const closeTimeout = useRef(null);
 
   const handleEnter = () => {
     if (closeTimeout.current) clearTimeout(closeTimeout.current);
@@ -86,9 +86,9 @@ function FloatingNav({ onJoinClick }) {
       initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1], delay: 0.2 }}
-      className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center bg-white border border-[#EAEAEA] rounded-full p-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]"
+      className="fixed top-5 right-5 z-50 flex items-center bg-white border border-[#EAEAEA] rounded-full p-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]"
     >
-      {/* Hover zone: logo + drawer items */}
+      {/* Hover zone — expands leftward when entered */}
       <div
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
@@ -98,7 +98,7 @@ function FloatingNav({ onJoinClick }) {
           href="#top"
           data-testid="nav-logo"
           aria-label="Øditr"
-          className="flex items-center justify-center w-10 h-10 text-2xl font-medium leading-none"
+          className="flex items-center justify-center w-10 h-10 text-2xl font-medium leading-none shrink-0"
         >
           Ø
         </a>
@@ -108,47 +108,60 @@ function FloatingNav({ onJoinClick }) {
           animate={{
             width: open ? "auto" : 0,
             opacity: open ? 1 : 0,
-            marginLeft: open ? 8 : 0,
+            marginLeft: open ? 4 : 0,
             marginRight: open ? 8 : 0,
           }}
-          transition={{ duration: 0.45, ease: [0.65, 0, 0.35, 1] }}
-          style={{ overflow: "hidden" }}
+          transition={{ duration: 0.5, ease: [0.65, 0, 0.35, 1] }}
+          style={{ overflow: "hidden", direction: "rtl" }}
           className="flex items-center"
           data-testid="nav-drawer"
         >
-          <span className="block h-5 w-px bg-[#EAEAEA] mr-2 shrink-0" />
-          <ul className="flex items-center gap-1 shrink-0 pr-2">
-            {NAV_ITEMS.map((item, i) => (
-              <motion.li
-                key={item.label}
-                initial={false}
-                animate={{
-                  x: open ? 0 : -8,
-                  opacity: open ? 1 : 0,
-                }}
-                transition={{
-                  duration: 0.35,
-                  delay: open ? 0.08 + i * 0.04 : 0,
-                  ease: [0.65, 0, 0.35, 1],
-                }}
-              >
-                <a
-                  href={item.href}
-                  data-testid={`nav-link-${item.label.toLowerCase()}`}
-                  className="px-3 py-2 text-sm text-[#666666] hover:text-[#0A0A0A] transition-colors whitespace-nowrap"
+          {/* direction:ltr on inner so children read left-to-right while the
+              outer width animates from the right edge inward */}
+          <div className="flex items-center" style={{ direction: "ltr" }}>
+            <motion.span
+              initial={false}
+              animate={{ x: open ? 0 : -8, opacity: open ? 1 : 0 }}
+              transition={{ duration: 0.4, delay: open ? 0.05 : 0, ease: [0.65, 0, 0.35, 1] }}
+              className="text-sm font-medium tracking-tight whitespace-nowrap"
+              data-testid="nav-wordmark"
+            >
+              Øditr
+            </motion.span>
+            <span className="block h-5 w-px bg-[#EAEAEA] mx-3 shrink-0" />
+            <ul className="flex items-center gap-1 shrink-0 pr-2">
+              {NAV_ITEMS.map((item, i) => (
+                <motion.li
+                  key={item.label}
+                  initial={false}
+                  animate={{
+                    x: open ? 0 : -8,
+                    opacity: open ? 1 : 0,
+                  }}
+                  transition={{
+                    duration: 0.35,
+                    delay: open ? 0.1 + i * 0.05 : 0,
+                    ease: [0.65, 0, 0.35, 1],
+                  }}
                 >
-                  {item.label}
-                </a>
-              </motion.li>
-            ))}
-          </ul>
+                  <a
+                    href={item.href}
+                    data-testid={`nav-link-${item.label.toLowerCase()}`}
+                    className="px-3 py-2 text-sm text-[#666666] hover:text-[#0A0A0A] transition-colors whitespace-nowrap"
+                  >
+                    {item.label}
+                  </a>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
         </motion.div>
       </div>
 
       <button
         onClick={onJoinClick}
         data-testid="nav-join-waitlist-btn"
-        className="bg-[#0A0A0A] text-white px-4 sm:px-5 py-2.5 rounded-full text-sm font-medium hover:bg-[#222222] transition-colors flex items-center gap-1.5 whitespace-nowrap"
+        className="bg-[#0A0A0A] text-white px-4 sm:px-5 py-2.5 rounded-full text-sm font-medium hover:bg-[#222222] transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
       >
         Join Waitlist
         <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2} />
