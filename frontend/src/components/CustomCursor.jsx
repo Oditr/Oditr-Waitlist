@@ -79,7 +79,7 @@ export default function CustomCursor() {
       cancelAnimationFrame(rafId);
       document.documentElement.classList.remove("has-custom-cursor");
     };
-  }, []);
+  }, [enabled]);
 
   if (!enabled) return null;
 
