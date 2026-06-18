@@ -329,10 +329,10 @@ function FlowSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.9 }}
-            className="flex flex-wrap items-baseline gap-x-6 md:gap-x-10 gap-y-4"
+            className="flex flex-wrap items-center gap-x-4 md:gap-x-8 gap-y-4"
           >
             {FLOW_STEPS.map((step, i) => (
-              <div key={step} className="flex items-baseline gap-6 md:gap-10">
+              <div key={step} className="flex items-center gap-4 md:gap-8">
                 <motion.span
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -343,7 +343,7 @@ function FlowSection() {
                   {step}
                 </motion.span>
                 {i < FLOW_STEPS.length - 1 && (
-                  <span className="font-mono text-2xl md:text-4xl text-[#0A0A0A]">→</span>
+                  <span className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-medium text-[#0A0A0A] leading-none select-none">→</span>
                 )}
               </div>
             ))}
@@ -650,7 +650,7 @@ function Footer() {
             Øditr — Pronounced &ldquo;Auditor&rdquo;
           </p>
         </div>
-        <div className="grid grid-cols-2 md:flex md:items-end gap-8 md:gap-14 text-sm">
+        <div className="grid grid-cols-2 md:flex md:items-start gap-8 md:gap-14 text-sm">
           <div className="flex flex-col gap-2">
             <span className="font-mono text-xs tracking-[0.2em] uppercase text-[#666666]">Product</span>
             <a href="#product" className="link-underline text-[#0A0A0A]">Overview</a>
@@ -661,6 +661,14 @@ function Footer() {
             <span className="font-mono text-xs tracking-[0.2em] uppercase text-[#666666]">Company</span>
             <a href="#waitlist" className="link-underline text-[#0A0A0A]">Waitlist</a>
             <a href="mailto:hello@oditr.dev" className="link-underline text-[#0A0A0A]">Contact</a>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="font-mono text-xs tracking-[0.2em] uppercase text-[#666666]">Follow</span>
+            <a href="#" aria-label="Instagram" className="link-underline text-[#0A0A0A]">Instagram</a>
+            <a href="#" aria-label="Twitter" className="link-underline text-[#0A0A0A]">Twitter</a>
+            <a href="#" aria-label="Reddit" className="link-underline text-[#0A0A0A]">Reddit</a>
+            <a href="#" aria-label="LinkedIn" className="link-underline text-[#0A0A0A]">LinkedIn</a>
+            <a href="#" aria-label="Product Hunt" className="link-underline text-[#0A0A0A]">Product Hunt</a>
           </div>
         </div>
       </div>
