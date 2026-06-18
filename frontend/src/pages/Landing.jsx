@@ -343,7 +343,7 @@ function FlowSection() {
                   {step}
                 </motion.span>
                 {i < FLOW_STEPS.length - 1 && (
-                  <span className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-medium text-[#0A0A0A] leading-none select-none">→</span>
+                  <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-medium text-[#0A0A0A] leading-none select-none">→</span>
                 )}
               </div>
             ))}
