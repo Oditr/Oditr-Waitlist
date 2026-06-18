@@ -3,8 +3,8 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import axios from "axios";
 import { ArrowUpRight, Check, ArrowRight, Instagram, Twitter, Linkedin } from "lucide-react";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
+const API = BACKEND_URL ? `${BACKEND_URL}/api` : null;
 
 const NAV_ITEMS = [
   { label: "Product", href: "#product" },
@@ -274,7 +274,7 @@ function Hero({ count, onJoinClick }) {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0A0A0A]" />
         </span>
         <span data-testid="hero-live-count">
-          {count.toLocaleString()} developers on the waitlist
+          {(count ?? 0).toLocaleString()} developers on the waitlist
         </span>
       </motion.div>
     </section>
@@ -464,13 +464,20 @@ function WaitlistSection({ count, onSubmitSuccess }) {
     }
     setStatus("loading");
     setMessage("");
+    if (!API) {
+      setStatus("error");
+      setMessage("Service unavailable. Please try again later.");
+      return;
+    }
     try {
       const { data } = await axios.post(`${API}/waitlist`, { email: trimmed });
+      const pos = data?.position ?? 0;
+      const cnt = data?.count ?? 0;
       setStatus("success");
-      setPosition(data.position);
-      setMessage(`You're in. Position #${data.position}.`);
+      setPosition(pos);
+      setMessage(`You're in. Position #${pos}.`);
       setEmail("");
-      onSubmitSuccess?.(data.count);
+      onSubmitSuccess?.(cnt);
     } catch (err) {
       setStatus("error");
       setMessage(err?.response?.data?.detail?.[0]?.msg || "Something went wrong. Try again.");
@@ -564,7 +571,7 @@ function WaitlistSection({ count, onSubmitSuccess }) {
             {status === "idle" && (
               <p className="text-[#666666] font-mono text-xs tracking-[0.18em] uppercase">
                 <span data-testid="waitlist-section-count">
-                  {count.toLocaleString()}
+                  {(count ?? 0).toLocaleString()}
                 </span>{" "}
                 developers waiting
               </p>
@@ -678,11 +685,12 @@ export default function Landing() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
+    if (!API) return;
     let mounted = true;
     axios
       .get(`${API}/waitlist/count`)
       .then(({ data }) => {
-        if (mounted) setCount(data.count);
+        if (mounted) setCount(data?.count ?? 0);
       })
       .catch(() => {});
     return () => {
