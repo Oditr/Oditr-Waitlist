@@ -6,11 +6,13 @@ import os
 import logging
 import secrets
 import string
+import asyncio
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import Optional
 import uuid
 from datetime import datetime, timezone
+import resend
 
 
 ROOT_DIR = Path(__file__).parent
@@ -22,6 +24,12 @@ db = client[os.environ['DB_NAME']]
 
 # Display baseline so the counter starts at a credible community size
 WAITLIST_BASELINE = int(os.environ.get('WAITLIST_BASELINE', '13'))
+
+# ------------ Resend email setup ------------
+resend.api_key = os.environ.get('RESEND_API_KEY', '')
+EMAIL_FROM = os.environ.get('EMAIL_FROM', 'onboarding@resend.dev')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'hello.oditr@gmail.com')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://oditr.com')
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -59,6 +67,129 @@ async def compute_position(entry: dict) -> int:
         "created_at": {"$lt": created_at_iso},
     })
     return higher + same_earlier + 1 + WAITLIST_BASELINE
+
+
+# ------------ Email helpers ------------
+
+def _build_confirmation_html(email: str, position: int, total: int, referral_code: str, referral_link: str) -> str:
+    return f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>You're on the Øditr waitlist</title>
+<style>
+  body {{ margin:0; padding:0; background:#0a0a0a; font-family:'Helvetica Neue',Arial,sans-serif; color:#f5f5f5; }}
+  .wrap {{ max-width:560px; margin:40px auto; background:#111; border:1px solid #222; border-radius:16px; overflow:hidden; }}
+  .hero {{ background:linear-gradient(135deg,#18181b 0%,#09090b 100%); padding:48px 40px 36px; text-align:center; }}
+  .logo {{ font-size:28px; font-weight:700; letter-spacing:-0.5px; color:#fff; margin-bottom:6px; }}
+  .logo span {{ color:#a78bfa; }}
+  .tagline {{ font-size:13px; color:#71717a; letter-spacing:0.5px; text-transform:uppercase; }}
+  .body {{ padding:36px 40px; }}
+  .headline {{ font-size:22px; font-weight:600; color:#fff; margin:0 0 10px; }}
+  .subline {{ font-size:15px; color:#a1a1aa; line-height:1.6; margin:0 0 28px; }}
+  .stat-row {{ display:flex; gap:12px; margin-bottom:28px; }}
+  .stat {{ flex:1; background:#18181b; border:1px solid #27272a; border-radius:12px; padding:18px 14px; text-align:center; }}
+  .stat-value {{ font-size:26px; font-weight:700; color:#a78bfa; }}
+  .stat-label {{ font-size:11px; color:#71717a; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; }}
+  .divider {{ border:none; border-top:1px solid #1f1f23; margin:0 0 24px; }}
+  .ref-label {{ font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }}
+  .ref-box {{ background:#18181b; border:1px solid #27272a; border-radius:10px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }}
+  .ref-code {{ font-family:monospace; font-size:15px; color:#a78bfa; letter-spacing:1px; }}
+  .cta {{ display:block; background:#a78bfa; color:#09090b; text-align:center; font-weight:600; font-size:14px; text-decoration:none; border-radius:10px; padding:14px 20px; margin-bottom:28px; }}
+  .share-note {{ font-size:13px; color:#71717a; line-height:1.6; margin-bottom:0; }}
+  .footer {{ background:#0a0a0a; padding:20px 40px; text-align:center; }}
+  .footer p {{ font-size:12px; color:#3f3f46; margin:0; }}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="logo">Ø<span>ditr</span></div>
+    <div class="tagline">Performance Intelligence</div>
+  </div>
+  <div class="body">
+    <h1 class="headline">You're on the list 🎉</h1>
+    <p class="subline">Welcome to the Øditr waitlist. We'll notify you the moment early access opens.</p>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-value">#{position}</div>
+        <div class="stat-label">Your position</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{total}</div>
+        <div class="stat-label">Total on list</div>
+      </div>
+    </div>
+    <hr class="divider" />
+    <div class="ref-label">Your referral link</div>
+    <div class="ref-box">
+      <span class="ref-code">{referral_code}</span>
+      <span style="font-size:12px;color:#52525b;">share to move up</span>
+    </div>
+    <a href="{referral_link}" class="cta">Share your referral link &rarr;</a>
+    <p class="share-note">Every friend you refer moves you one spot higher. Share your link to jump the queue before launch.</p>
+  </div>
+  <div class="footer">
+    <p>Øditr &mdash; Know what slows your site. Fix it before users leave.</p>
+    <p style="margin-top:6px;">You're receiving this because you signed up at oditr.com</p>
+  </div>
+</div>
+</body>
+</html>
+"""
+
+
+async def send_confirmation_email(email: str, position: int, total: int, referral_code: str) -> None:
+    """Send a welcome confirmation to the new waitlist member. Fire-and-forget."""
+    if not resend.api_key:
+        logger.warning("RESEND_API_KEY not set — skipping confirmation email")
+        return
+    try:
+        referral_link = f"{FRONTEND_URL}?ref={referral_code}"
+        html = _build_confirmation_html(email, position, total, referral_code, referral_link)
+        await asyncio.to_thread(
+            resend.Emails.send,
+            {
+                "from": f"Øditr <{EMAIL_FROM}>",
+                "to": [email],
+                "subject": f"You're #{position} on the Øditr waitlist 🚀",
+                "html": html,
+            },
+        )
+        logger.info("Confirmation email sent to %s", email)
+    except Exception as exc:
+        logger.error("Failed to send confirmation email to %s: %s", email, exc)
+
+
+async def send_admin_notification(email: str, position: int, total: int, referral_code: str, referred_by: Optional[str]) -> None:
+    """Send an admin notification to ADMIN_EMAIL on every new signup. Fire-and-forget."""
+    if not resend.api_key:
+        return
+    try:
+        referred_text = f"Referred by: {referred_by}" if referred_by else "Organic signup"
+        html = f"""
+        <div style="font-family:monospace;font-size:14px;line-height:1.8;color:#111;">
+          <strong>New Øditr waitlist signup</strong><br/><br/>
+          <b>Email:</b> {email}<br/>
+          <b>Position:</b> #{position}<br/>
+          <b>Total signups:</b> {total}<br/>
+          <b>Referral code:</b> {referral_code}<br/>
+          <b>{referred_text}</b>
+        </div>
+        """
+        await asyncio.to_thread(
+            resend.Emails.send,
+            {
+                "from": f"Øditr Waitlist <{EMAIL_FROM}>",
+                "to": [ADMIN_EMAIL],
+                "subject": f"[Øditr] New signup #{position} — {email}",
+                "html": html,
+            },
+        )
+    except Exception as exc:
+        logger.error("Failed to send admin notification: %s", exc)
 
 
 # ------------ Models ------------
@@ -148,6 +279,10 @@ async def join_waitlist(payload: WaitlistCreate):
     entry_for_position = {**entry, "created_at": now}
     position = await compute_position(entry_for_position)
     count = await db.waitlist.count_documents({}) + WAITLIST_BASELINE
+
+    # Fire-and-forget emails — never block the API response
+    asyncio.create_task(send_confirmation_email(email_normalized, position, count, new_code))
+    asyncio.create_task(send_admin_notification(email_normalized, position, count, new_code, referred_by))
 
     return WaitlistResponse(
         id=entry["id"],
