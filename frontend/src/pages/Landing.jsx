@@ -3,7 +3,8 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import axios from "axios";
 import { ArrowUpRight, Check, ArrowRight, Instagram, Twitter, Linkedin } from "lucide-react";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
+// Strip trailing slash so REACT_APP_BACKEND_URL with or without '/' both work
+const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
 const API = BACKEND_URL ? `${BACKEND_URL}/api` : null;
 
 const NAV_ITEMS = [
@@ -453,6 +454,9 @@ function WaitlistSection({ count, onSubmitSuccess }) {
   const [message, setMessage] = useState("");
   const [position, setPosition] = useState(null);
 
+  // Read referral code from ?ref= URL param (e.g. shared links)
+  const refCode = new URLSearchParams(window.location.search).get("ref") || undefined;
+
   const submit = async (e) => {
     e.preventDefault();
     if (status === "loading") return;
@@ -470,7 +474,7 @@ function WaitlistSection({ count, onSubmitSuccess }) {
       return;
     }
     try {
-      const { data } = await axios.post(`${API}/waitlist`, { email: trimmed });
+      const { data } = await axios.post(`${API}/waitlist`, { email: trimmed, ref: refCode });
       const pos = data?.position ?? 0;
       const cnt = data?.count ?? 0;
       setStatus("success");
@@ -479,8 +483,18 @@ function WaitlistSection({ count, onSubmitSuccess }) {
       setEmail("");
       onSubmitSuccess?.(cnt);
     } catch (err) {
+      // Log full error to browser console for debugging
+      console.error("[Waitlist] submission error:", err?.response?.status, err?.response?.data ?? err?.message);
+      // detail can be an array (Pydantic validation) or a plain string (custom HTTPException)
+      const detail = err?.response?.data?.detail;
+      const msg =
+        Array.isArray(detail)
+          ? detail[0]?.msg
+          : typeof detail === "string"
+          ? detail
+          : null;
       setStatus("error");
-      setMessage(err?.response?.data?.detail?.[0]?.msg || "Something went wrong. Try again.");
+      setMessage(msg || "Something went wrong. Please try again.");
     }
   };
 
