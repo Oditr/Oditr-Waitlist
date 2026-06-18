@@ -83,7 +83,6 @@ REACT_APP_BACKEND_URL=<your-backend-url>
 ## Notes
 
 - The only build warning is an ESLint `react-hooks/exhaustive-deps` warning in `CustomCursor.jsx` — this is cosmetic and does **not** affect the build.
-- The `@emergentbase/visual-edits` dev dependency is only active in development mode (`NODE_ENV !== production`) via the `craco.config.js` guard, so it does not affect the Vercel production build.
 
 ---
 
@@ -107,11 +106,7 @@ WAITLIST_BASELINE=13
 
 ### Backend Dependency Fixes Applied (2026-06-18)
 
-**Problem:** `emergentintegrations==0.2.0` was listed in `requirements.txt` but has no matching PyPI distribution.
-
-**Fix:** Removed `emergentintegrations==0.2.0` — confirmed it is **never imported** in `server.py`.
-
-Also removed unused packages that were never referenced in `server.py`:
+Removed unused packages that were never referenced in `server.py`:
 `boto3`, `requests-oauthlib`, `cryptography`, `pyjwt`, `bcrypt`, `passlib`, `python-jose`, `requests`, `pandas`, `numpy`, `jq`, `typer`, `pytest`, `black`, `isort`, `flake8`, `mypy`
 
 #### Final `requirements.txt`
