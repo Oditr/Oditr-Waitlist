@@ -574,7 +574,7 @@ function WaitlistSection({ count, onSubmitSuccess }) {
           <div className="mt-5 min-h-[24px] flex items-center justify-center gap-3 text-sm">
             {status === "success" && (
               <p data-testid="waitlist-success-msg" className="text-[#0A0A0A]">
-                {message}
+                You're on the Øditr waitlist. We'll notify you when early access opens.
               </p>
             )}
             {status === "error" && (
@@ -601,17 +601,17 @@ function Footer() {
   const socials = [
     {
       name: "Instagram",
-      href: "",
+      href: "https://www.instagram.com/oditr.io/",
       icon: <Instagram className="w-4 h-4" strokeWidth={1.5} />,
     },
     {
       name: "Twitter",
-      href: "",
+      href: "https://x.com/Oditr_io",
       icon: <Twitter className="w-4 h-4" strokeWidth={1.5} />,
     },
     {
       name: "Reddit",
-      href: "",
+      href: "https://www.reddit.com/user/Oditr-io/",
       icon: (
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="13" r="9" />
@@ -625,19 +625,8 @@ function Footer() {
     },
     {
       name: "LinkedIn",
-      href: "",
+      href: "https://www.linkedin.com/company/oditr-io",
       icon: <Linkedin className="w-4 h-4" strokeWidth={1.5} />,
-    },
-    {
-      name: "Product Hunt",
-      href: "",
-      icon: (
-        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M10 7v10" />
-          <path d="M10 7h3.5a2.5 2.5 0 0 1 0 5H10" />
-        </svg>
-      ),
     },
   ];
 
@@ -664,11 +653,10 @@ function Footer() {
           </div>
           <div className="flex flex-col gap-2">
             <span className="font-mono text-xs tracking-[0.2em] uppercase text-[#666666]">Follow</span>
-            <a href="#" aria-label="Instagram" className="link-underline text-[#0A0A0A]">Instagram</a>
-            <a href="#" aria-label="Twitter" className="link-underline text-[#0A0A0A]">Twitter</a>
-            <a href="#" aria-label="Reddit" className="link-underline text-[#0A0A0A]">Reddit</a>
-            <a href="#" aria-label="LinkedIn" className="link-underline text-[#0A0A0A]">LinkedIn</a>
-            <a href="#" aria-label="Product Hunt" className="link-underline text-[#0A0A0A]">Product Hunt</a>
+            <a href="https://www.instagram.com/oditr.io/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="link-underline text-[#0A0A0A]">Instagram</a>
+            <a href="https://x.com/Oditr_io" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" className="link-underline text-[#0A0A0A]">Twitter / X</a>
+            <a href="https://www.reddit.com/user/Oditr-io/" target="_blank" rel="noopener noreferrer" aria-label="Reddit" className="link-underline text-[#0A0A0A]">Reddit</a>
+            <a href="https://www.linkedin.com/company/oditr-io" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="link-underline text-[#0A0A0A]">LinkedIn</a>
           </div>
         </div>
       </div>
