@@ -3,9 +3,6 @@ import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "@/index.css";
 import App from "@/App";
-import { inject } from "@vercel/analytics";
-
-inject();
 
 const queryClient = new QueryClient({
   defaultOptions: {
