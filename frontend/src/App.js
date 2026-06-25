@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Lenis from "lenis";
+import { Analytics } from "@vercel/analytics/react";
 import Landing from "@/pages/Landing";
 import CustomCursor from "@/components/CustomCursor";
 
@@ -78,6 +79,7 @@ function App() {
           <Route path="/" element={<Landing />} />
         </Routes>
       </BrowserRouter>
+      <Analytics />
     </div>
   );
 }
