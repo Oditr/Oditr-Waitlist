@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import axios from "axios";
-import { ArrowUpRight, Check, ArrowRight, Instagram, Twitter, Linkedin } from "lucide-react";
+import { ArrowUpRight, Check, ArrowRight, Instagram, Twitter, Linkedin, Menu, X } from "lucide-react";
 
 // Strip trailing slash so REACT_APP_BACKEND_URL with or without '/' both work
 const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
@@ -86,6 +86,7 @@ const CAPABILITIES = [
 
 function FloatingNav({ onJoinClick }) {
   const [open, setOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const closeTimeout = useRef(null);
 
   const handleEnter = () => {
@@ -102,13 +103,13 @@ function FloatingNav({ onJoinClick }) {
       initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1], delay: 0.2 }}
-      className="fixed top-5 right-5 z-50 flex items-center bg-white border border-[#EAEAEA] rounded-full p-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]"
+      className="fixed top-5 right-5 left-5 md:left-auto z-50 flex items-center bg-white border border-[#EAEAEA] rounded-full p-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]"
     >
-      {/* Hover zone — expands leftward when entered */}
+      {/* Hover zone — expands when entered */}
       <div
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
-        className="flex items-center"
+        className="flex items-center grow md:grow-0"
       >
         <a
           href="#top"
@@ -119,60 +120,80 @@ function FloatingNav({ onJoinClick }) {
           Ø
         </a>
 
+        {/* Desktop Drawer */}
         <motion.div
           initial={false}
           animate={{
             width: open ? "auto" : 0,
             opacity: open ? 1 : 0,
             marginLeft: open ? 4 : 0,
-            marginRight: open ? 8 : 0,
           }}
           transition={{ duration: 0.5, ease: [0.65, 0, 0.35, 1] }}
           style={{ overflow: "hidden", direction: "rtl" }}
-          className="flex items-center"
-          data-testid="nav-drawer"
+          className="hidden md:flex items-center"
         >
-          {/* direction:ltr on inner so children read left-to-right while the
-              outer width animates from the right edge inward */}
           <div className="flex items-center" style={{ direction: "ltr" }}>
-            <span className="block h-5 w-px bg-[#EAEAEA] mx-3 shrink-0" />
+            <span className="block h-5 w-px bg-[#EAEAEA] mx-3" />
             <ul className="flex items-center gap-1 shrink-0 pr-2">
-              {NAV_ITEMS.map((item, i) => (
-                <motion.li
-                  key={item.label}
-                  initial={false}
-                  animate={{
-                    x: open ? 0 : -8,
-                    opacity: open ? 1 : 0,
-                  }}
-                  transition={{
-                    duration: 0.35,
-                    delay: open ? 0.08 + i * 0.05 : 0,
-                    ease: [0.65, 0, 0.35, 1],
-                  }}
-                >
-                  <a
-                    href={item.href}
-                    data-testid={`nav-link-${item.label.toLowerCase()}`}
-                    className="px-3 py-2 text-sm text-[#666666] hover:text-[#0A0A0A] transition-colors whitespace-nowrap"
-                  >
+              {NAV_ITEMS.map((item) => (
+                <li key={item.label}>
+                  <a href={item.href} className="px-3 py-2 text-sm text-[#666666] hover:text-[#0A0A0A] transition-colors whitespace-nowrap">
                     {item.label}
                   </a>
-                </motion.li>
+                </li>
               ))}
             </ul>
           </div>
+        </motion.div>
+
+        {/* Arrow cue visible on desktop between logo and Join Waitlist when menu is closed */}
+        <motion.div
+          initial={false}
+          animate={{
+            width: open ? 0 : "auto",
+            opacity: open ? 0 : 1,
+            marginLeft: open ? 0 : 8,
+            marginRight: open ? 0 : 8,
+          }}
+          transition={{ duration: 0.3 }}
+          style={{ overflow: "hidden" }}
+          className="hidden md:flex items-center justify-center text-[#AAAAAA]"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
         </motion.div>
       </div>
 
       <button
         onClick={onJoinClick}
         data-testid="nav-join-waitlist-btn"
-        className="bg-[#0A0A0A] text-white px-4 sm:px-5 py-2.5 rounded-full text-sm font-medium hover:bg-[#222222] transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
+        className="bg-[#0A0A0A] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-[#222222] transition-colors flex items-center gap-1.5 ml-auto md:ml-0"
       >
         Join Waitlist
-        <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2} />
+        <ArrowUpRight className="w-3.5 h-3.5" />
       </button>
+
+      <button className="md:hidden ml-3 p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+        {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </button>
+
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-16 right-0 left-0 bg-white border border-[#EAEAEA] rounded-2xl p-4 shadow-xl md:hidden"
+          >
+            {NAV_ITEMS.map((item) => (
+              <a key={item.label} href={item.href} className="block py-3 px-4 text-sm hover:bg-gray-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                {item.label}
+              </a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }
@@ -710,7 +731,7 @@ function WaitlistSection({ count, onSubmitSuccess }) {
           id="waitlist"
           className="mt-14 max-w-2xl mx-auto"
         >
-          <div className="flex flex-col sm:flex-row items-stretch gap-3 sm:gap-2 border border-[#EAEAEA] rounded-full p-1.5 bg-white focus-within:border-[#0A0A0A] transition-colors">
+          <div className="flex flex-col sm:flex-row items-stretch gap-2 border border-[#EAEAEA] rounded-2xl sm:rounded-full p-2 sm:p-1.5 bg-white focus-within:border-[#0A0A0A] transition-colors">
             <input
               type="email"
               value={email}
@@ -718,14 +739,14 @@ function WaitlistSection({ count, onSubmitSuccess }) {
               placeholder="you@yourdomain.com"
               data-testid="waitlist-email-input"
               autoComplete="email"
-              className="flex-1 bg-transparent outline-none px-5 py-3 text-base text-[#0A0A0A] placeholder:text-[#999999]"
+              className="flex-1 min-w-0 bg-transparent outline-none px-5 py-3 text-base text-[#0A0A0A] placeholder:text-[#999999]"
               disabled={status === "loading"}
             />
             <button
               type="submit"
               data-testid="waitlist-submit-btn"
               disabled={status === "loading"}
-              className="btn-primary-magnetic bg-[#0A0A0A] text-white border border-[#0A0A0A] px-6 py-3 rounded-full text-sm font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60"
+              className="btn-primary-magnetic bg-[#0A0A0A] text-white border border-[#0A0A0A] px-6 py-3 rounded-xl sm:rounded-full text-sm font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60 w-full sm:w-auto"
             >
               <span className="btn-text">
                 {status === "loading" ? "Joining…" : status === "success" ? "Joined" : "Join Waitlist"}
@@ -891,7 +912,7 @@ export default function Landing() {
   };
 
   return (
-    <main data-testid="landing-page" className="relative bg-white text-[#0A0A0A] min-h-screen">
+    <main data-testid="landing-page" className="relative bg-white text-[#0A0A0A] min-h-screen overflow-x-hidden">
       <FloatingNav onJoinClick={scrollToWaitlist} />
       <Hero count={count} onJoinClick={scrollToWaitlist} />
       <ProblemSection />

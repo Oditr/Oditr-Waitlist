@@ -45,6 +45,7 @@ html.is-zoomed .lenis {
 
 body {
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 ::selection {
